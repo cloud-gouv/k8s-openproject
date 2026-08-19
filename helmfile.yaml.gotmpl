@@ -1,0 +1,28 @@
+environments:
+  preprod:
+    values:
+      - version: 13.17.1
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
+  prod:
+    values:
+      - version: 13.17.1
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
+
+---
+repositories:
+- name: openproject
+  url: https://charts.openproject.org
+
+releases:
+  - name: openproject
+    namespace: openproject
+    chart: openproject/openproject
+    version: {{ .Values.version }}
+    installed: true
+    createNamespace: false
+    values:
+      - env/{{ .Environment.Name }}/values.yaml
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
