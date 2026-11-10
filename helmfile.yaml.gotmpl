@@ -1,6 +1,14 @@
 environments:
-  {{ .Environment.Name }}:
-    values: []
+  preprod:
+    values:
+      - version: 13.17.1
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
+  prod:
+    values:
+      - version: 13.17.1
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
 
 ---
 repositories:
@@ -8,13 +16,13 @@ repositories:
   url: https://charts.openproject.org
 
 releases:
-  - name: opr-poc
-    namespace: opr-poc
+  - name: openproject
+    namespace: openproject
     chart: openproject/openproject
-    version: 13.10.2
+    version: {{ .Values.version }}
     installed: true
     createNamespace: false
     values:
-      - environments/{{ .Environment.Name }}/values.yaml
+      - env/{{ .Environment.Name }}/values.yaml
     secrets:
-      - environments/{{ .Environment.Name }}/secrets.enc.yaml
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
