@@ -31,7 +31,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
     nginx.ingress.kubernetes.io/proxy-body-size: "30m"
-  host: "openproject.numerique.gouv.fr"
+  host: "openproject.interne.numerique.gouv.fr"
   tls:
     enabled: true
     secretName: "openproject-opicloud-fr-tls"
@@ -80,7 +80,7 @@ hocuspocus:
 openproject:
   https: true
   hsts: true
-  hosts: "openproject.numerique.gouv.fr"
+  hosts: "openproject.interne.numerique.gouv.fr"
   seed_locale: "fr"
 
   admin_user:
