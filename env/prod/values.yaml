@@ -103,11 +103,11 @@ s3:
   # support ReadWriteMany
   enabled: true
 
-  region: eu-west-2
+  region: cloudgouv-eu-west-1
   bucketName: openproject
 
-  endpoint: https://oos.eu-west-2.outscale.com
-  host: oos.eu-west-2.outscale.com
+  endpoint: https://oos.cloudgouv-eu-west-1.outscale.com
+  host: oos.cloudgouv-eu-west-1.outscale.com
   port: 443
   pathStyle: true
   signatureVersion: 4
