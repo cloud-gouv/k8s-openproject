@@ -5,7 +5,7 @@ global: {}
 # https://hub.docker.com/r/openproject/openproject/tags
 image:
   repository: openproject/openproject
-  sha256: "817640f6637157903846ac79808fe0333b279ae6cddf3c57fe4bea6ff98b56d1" #tag 17.9.6-slim
+  sha256: "2d9a77fd8b7781ee3fea84ac232dd449c21ac4f84720b2e3019e8b1a0003684e" #tag 17.9.8-slim
 
 dbInit:
   resources:
