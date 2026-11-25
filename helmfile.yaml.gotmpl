@@ -26,3 +26,11 @@ releases:
       - env/{{ .Environment.Name }}/values.yaml
     secrets:
       - env/{{ .Environment.Name }}/secrets.enc.yaml
+
+  - name: openproject-extra
+    namespace: openproject
+    chart: extra
+    values:
+      - env/{{ .Environment.Name }}/values.yaml
+    secrets:
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
