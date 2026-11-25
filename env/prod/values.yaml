@@ -163,6 +163,9 @@ resources:
     cpu: "4"
     memory: 4Gi
 
+ingress:
+  enabled: false
+
 gateway:
   enabled: true
   host: openproject.interne.numerique.gouv.fr
