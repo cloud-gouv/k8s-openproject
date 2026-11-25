@@ -163,6 +163,9 @@ resources:
     cpu: "4"
     memory: 4Gi
 
+ingress:
+  enabled: false
+
 gateway:
   enabled: true
   host: openproject.dinum-general-ppr-euw2-wapp-01.k8s.dev.opicloud.fr
