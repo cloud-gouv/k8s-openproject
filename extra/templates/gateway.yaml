@@ -1,0 +1,72 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: openproject-listeners
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-envoy-prod
+spec:
+  parentRef:
+    name: platform-gateway
+    namespace: envoy-gateway-system
+    kind: Gateway
+    group: gateway.networking.k8s.io
+  listeners:
+    - name: https-openproject
+      hostname: {{ .Values.gateway.host }}
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ''
+            kind: Secret
+            name: {{ .Values.gateway.host }}
+      allowedRoutes:
+        namespaces:
+          from: Same
+    # HTTP:80 pour le challenge HTTP-01 de cert-manager
+    - name: http-openproject
+      hostname: {{ .Values.gateway.host }}
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openproject-https
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+    external-dns.alpha.kubernetes.io/ttl: '10'
+spec:
+  parentRefs:
+    - name: openproject-listeners
+      kind: ListenerSet
+      group: gateway.networking.k8s.io
+      sectionName: https-openproject
+  hostnames:
+    - {{ .Values.gateway.host }}
+  rules:
+    # websocket de l'édition collaborative (OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__URL)
+    - name: openproject-hocuspocus
+      matches:
+        - path:
+            type: PathPrefix
+            value: /hocuspocus
+      backendRefs:
+        - name: openproject-hocuspocus
+          port: 1234
+    - name: openproject-all-paths
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: openproject
+          port: 8080
+{{- end }}
