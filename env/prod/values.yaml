@@ -25,17 +25,6 @@ appInit:
       cpu: "1"
       memory: "1Gi"
 
-ingress:
-  enabled: true
-  ingressClassName: nginx
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
-    nginx.ingress.kubernetes.io/proxy-body-size: "30m"
-  host: "openproject.interne.numerique.gouv.fr"
-  tls:
-    enabled: true
-    secretName: "openproject-opicloud-fr-tls"
-
 networkPolicy:
   enabled: false
 
@@ -80,7 +69,7 @@ hocuspocus:
 openproject:
   https: true
   hsts: true
-  hosts: "openproject.interne.numerique.gouv.fr"
+  host: "openproject.interne.numerique.gouv.fr"
   seed_locale: "fr"
 
   admin_user:
@@ -174,112 +163,9 @@ resources:
     cpu: "4"
     memory: 4Gi
 
+ingress:
+  enabled: false
 
-
-
-# =============================================================================
-# Équivalent Gateway API (Envoy Gateway) du bloc `ingress` ci-dessus
-#
-#   hosts[].host                -> listener.hostname + httpRoute.hostnames
-#   className: nginx            -> parentRef vers la Gateway Envoy
-#   cluster-issuer              -> annotation ListenerSet + tls.certificateRefs
-#   tls.secretName              -> tls.certificateRefs[].name
-#   paths[].path: /             -> matches[].path PathPrefix /
-#   proxy-body-size: 30m        -> BackendTrafficPolicy.requestBuffer.limit
-#   ssl-redirect (implicite)    -> route `redirect-to-https` de la platform-gateway
-#                                  (déjà en place, et elle exempte /.well-known/acme-challenge/)
-# =============================================================================
-# gateway:
-#   enabled: true
-
-# listenerSets:
-#   - name: openproject-listeners
-#     annotations:
-#       cert-manager.io/cluster-issuer: letsencrypt-envoy-prod
-#     parentRef:
-#       name: platform-gateway
-#       namespace: envoy-gateway-system
-#       kind: Gateway
-#       group: gateway.networking.k8s.io
-#     listeners:
-#       - name: https-openproject-prod
-#         protocol: HTTPS
-#         port: 443
-#         # Ce domaine pointe vers public1-gw.<nom du cluster>.cloud.incubateur.net qui lui pointe vers les ip du lb outscale de facon dynamique
-#         hostname: openprojeopenproject.dinum-general-ppr-euw2-wapp-01.k8s.dev.opicloud.fr
-#         tls:
-#           mode: Terminate
-#           certificateRefs:
-#             - group: ''
-#               kind: Secret
-#               name: openproject-envoy-tls
-#         allowedRoutes:
-#           namespaces:
-#             from: Same
-
-# httpRoutes:
-#   - name: openproject-prod-https
-#     parentRefs:
-#       - name: openproject-listeners
-#         kind: ListenerSet
-#         group: gateway.networking.k8s.io
-#         sectionName: https-openproject-prod
-#     hostnames:
-#       - openprojeopenproject.dinum-general-ppr-euw2-wapp-01.k8s.dev.opicloud.fr
-#     rules:
-#       - name: openproject-websocket
-#         matches:
-#           - path:
-#               type: PathPrefix
-#               value: /socket.io/
-#         backendRefs:
-#           - name: openproject
-#             port: 1337
-#       - name: openproject-all-paths
-#         matches:
-#           - path:
-#               type: PathPrefix
-#               value: /
-#         backendRefs:
-#           - name: openproject
-#             port: 1337
-
-# # équivalent de nginx.ingress.kubernetes.io/proxy-body-size: 30m
-# backendTrafficPolicies:
-#   - name: openproject-prod-body-size
-#     requestBuffer:
-#       limit: 30Mi
-#     targetRefs:
-#       - group: gateway.networking.k8s.io
-#         kind: HTTPRoute
-#         name: openproject-prod-https
-#         sectionName: openproject-all-paths
-
-# # Activation du WAF, config filtre light + audit logs pour avoir des informations sur les attaques (IP, types, ect ...)
-# # Supprimer cette partie pour supprimer le waf
-# envoyExtensionPolicies:
-#   - name: coraza-waf-webapp
-#     namespace: {{ .Namespace }}
-#     targetRefs:
-#       - group: gateway.networking.k8s.io
-#         kind: HTTPRoute
-#         name: openproject-prod-https
-#         sectionName: openproject-all-paths
-#     dynamicModule:
-#       - name: composer
-#         filterName: coraza-waf
-#         config:
-#           directives:
-#             - Include @coraza.conf
-#             - SecRuleEngine on
-#             - SecResponseBodyAccess Off
-#             - Include @crs-setup.conf
-#             - Include @owasp_crs/*.conf
-#             - SecRuleUpdateTargetByTag "OWASP_CRS" "!REQUEST_COOKIES:/^(ph_|__ph_)/"
-#             - SecAuditEngine RelevantOnly
-#             - SecAuditLog /dev/stdout
-#             - SecAuditLogType Serial
-#             - SecAuditLogFormat JSON
-#             - SecAuditLogParts AJHZ
-
-# securityPolicies: []
+gateway:
+  enabled: true
+  host: openproject.interne.numerique.gouv.fr
